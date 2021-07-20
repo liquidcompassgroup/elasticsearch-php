@@ -1,6 +1,6 @@
 <?php
 
-namespace Elasticsearch;
+namespace ElasticsearchLegacy;
 
 use ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException;
 use ElasticsearchLegacy\Common\Exceptions\RuntimeException;
