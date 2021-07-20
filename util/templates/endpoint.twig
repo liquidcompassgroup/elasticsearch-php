@@ -1,16 +1,16 @@
 <?php
 
-namespace Elasticsearch\Endpoints{% for class in namespace %}{{ loop.last ? ';' : '\\' ~ class|title  }}{%  endfor %}
+namespace ElasticsearchLegacy\Endpoints{% for class in namespace %}{{ loop.last ? ';' : '\\' ~ class|title  }}{%  endfor %}
 
 
-use Elasticsearch\Endpoints\AbstractEndpoint;
-use Elasticsearch\Common\Exceptions;
+use ElasticsearchLegacy\Endpoints\AbstractEndpoint;
+use ElasticsearchLegacy\Common\Exceptions;
 
 /**
  * Class {{ className|title }}
  *
  * @category Elasticsearch
- * @package Elasticsearch\Endpoints{% for class in namespace %}{{ loop.last ? '' : '\\' ~ class|title  }}{%  endfor %}
+ * @package ElasticsearchLegacy\Endpoints{% for class in namespace %}{{ loop.last ? '' : '\\' ~ class|title  }}{%  endfor %}
  *
  * @author   Zachary Tong <zachary.tong@elasticsearch.com>
  * @license  http://www.apache.org/licenses/LICENSE-2.0 Apache2
@@ -31,7 +31,7 @@ class {{ className|title }} extends AbstractEndpoint
     /**
      * @param array $body
      *
-     * @throws \Elasticsearch\Common\Exceptions\InvalidArgumentException
+     * @throws \ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException
      * @return $this
      */
     public function setBody($body)
@@ -76,7 +76,7 @@ class {{ className|title }} extends AbstractEndpoint
     /**
 {% for part, info in data.url.parts %}
 {% if info.required is not null %}
-{% set exception = '     * @throws \\Elasticsearch\\Common\\Exceptions\\BadMethodCallException
+{% set exception = '     * @throws \\ElasticsearchLegacy\\Common\\Exceptions\\BadMethodCallException
 ' %}
 {% endif %}
 {% endfor %}{% autoescape false %}{{ exception }}{% endautoescape %}
@@ -127,7 +127,7 @@ class {{ className|title }} extends AbstractEndpoint
 {% if data.body.required == true %}
     /**
      * @return array
-     * @throws \Elasticsearch\Common\Exceptions\RuntimeException
+     * @throws \ElasticsearchLegacy\Common\Exceptions\RuntimeException
      */
     protected function getBody()
     {

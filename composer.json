@@ -1,6 +1,6 @@
 {
-  "name": "elasticsearch/elasticsearch",
-  "description": "PHP Client for Elasticsearch",
+  "name": "elasticsearch/elasticsearch-legacy",
+  "description": "PHP Client for Elasticsearch Legacy",
   "keywords": ["search","client", "elasticsearch"],
   "type": "library",
   "license": "Apache-2.0",
@@ -28,12 +28,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Elasticsearch\\": "src/Elasticsearch/"
+      "ElasticsearchLegacy\\": "src/ElasticsearchLegacy/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Elasticsearch\\Tests\\":      "tests/Elasticsearch/Tests/"
+      "ElasticsearchLegacy\\Tests\\":      "tests/ElasticsearchLegacy/Tests/"
     }
   },
   "repositories": [

@@ -18,7 +18,7 @@ echo "Base directory: ". dirname(__DIR__)."\n";
 $autoloader = require_once(dirname(__DIR__) . '/vendor/autoload.php');
 
 $gitWrapper = new \GitWrapper\GitWrapper();
-echo "Git cwd: ".dirname(__DIR__) . "/util/elasticsearch\n";
+echo "Git cwd: ".dirname(__DIR__) . "/util/ElasticsearchLegacy\n";
 $git = $gitWrapper->workingCopy(dirname(__DIR__) . '/util/elasticsearch');
 
 echo "Update elasticsearch submodule\n";

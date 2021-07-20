@@ -15,7 +15,7 @@ if (!file_exists(dirname(__DIR__) . '/composer.lock')) {
 // Include the composer autoloader
 $autoloader = require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$client = \Elasticsearch\ClientBuilder::fromConfig([
+$client = \ElasticsearchLegacy\ClientBuilder::fromConfig([
     'hosts' => [$_SERVER['ES_TEST_HOST']]
 ]);
 

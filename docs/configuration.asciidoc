@@ -117,16 +117,16 @@ you can catch a specific curl exception then check if it wraps a MaxRetriesExcep
 
 [source,php]
 ----
-$client = Elasticsearch\ClientBuilder::create()
+$client = ElasticsearchLegacy\ClientBuilder::create()
     ->setHosts(["localhost:1"])
     ->setRetries(0)
     ->build();
 
 try {
     $client->search($searchParams);
-} catch (Elasticsearch\Common\Exceptions\Curl\CouldNotConnectToHost $e) {
+} catch (ElasticsearchLegacy\Common\Exceptions\Curl\CouldNotConnectToHost $e) {
     $previous = $e->getPrevious();
-    if ($previous instanceof 'Elasticsearch\Common\Exceptions\MaxRetriesException') {
+    if ($previous instanceof 'ElasticsearchLegacy\Common\Exceptions\MaxRetriesException') {
         echo "Max retries!";
     }
 }
@@ -138,16 +138,16 @@ check its previous value:
 
 [source,php]
 ----
-$client = Elasticsearch\ClientBuilder::create()
+$client = ElasticsearchLegacy\ClientBuilder::create()
     ->setHosts(["localhost:1"])
     ->setRetries(0)
     ->build();
 
 try {
     $client->search($searchParams);
-} catch (Elasticsearch\Common\Exceptions\TransportException $e) {
+} catch (ElasticsearchLegacy\Common\Exceptions\TransportException $e) {
     $previous = $e->getPrevious();
-    if ($previous instanceof 'Elasticsearch\Common\Exceptions\MaxRetriesException') {
+    if ($previous instanceof 'ElasticsearchLegacy\Common\Exceptions\MaxRetriesException') {
         echo "Max retries!";
     }
 }
@@ -263,7 +263,7 @@ Connection pools are configured via the `setConnectionPool()` method:
 
 [source,php]
 ----
-$connectionPool = '\Elasticsearch\ConnectionPool\StaticNoPingConnectionPool';
+$connectionPool = '\ElasticsearchLegacy\ConnectionPool\StaticNoPingConnectionPool';
 $client = ClientBuilder::create()
             ->setConnectionPool($connectionPool)
             ->build();
@@ -279,7 +279,7 @@ via the `setSelector()` method:
 
 [source,php]
 ----
-$selector = '\Elasticsearch\ConnectionPool\Selectors\StickyRoundRobinSelector';
+$selector = '\ElasticsearchLegacy\ConnectionPool\Selectors\StickyRoundRobinSelector';
 $client = ClientBuilder::create()
             ->setSelector($selector)
             ->build();
@@ -299,7 +299,7 @@ it can be done via the `setSerializer()` method:
 
 [source,php]
 ----
-$serializer = '\Elasticsearch\Serializers\SmartSerializer';
+$serializer = '\ElasticsearchLegacy\Serializers\SmartSerializer';
 $client = ClientBuilder::create()
             ->setSerializer($serializer)
             ->build();
@@ -381,7 +381,7 @@ $newEndpoint = function ($class) use ($transport, $serializer) {
         return new MyProject\SuperSearch($transport);
     } else {
         // Default handler
-        $fullPath = '\\Elasticsearch\\Endpoints\\' . $class;
+        $fullPath = '\\ElasticsearchLegacy\\Endpoints\\' . $class;
         if ($class === 'Bulk' || $class === 'Msearch' || $class === 'MPercolate') {
             return new $fullPath($transport, $serializer);
         } else {
