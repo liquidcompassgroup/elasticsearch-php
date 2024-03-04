@@ -8,20 +8,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.1, 8.0, 7.3]
-        include:
-          - php: 5.6
-            env:
-              ES_VERSION: "2.4"
-              TEST_BUILD_REF: "origin/2.4"
-          - php: 5.6
-            env:
-              ES_VERSION: "1.7"
-              TEST_BUILD_REF: "origin/1.7"
-        exclude:
-          - php: hhvm
-        allow_failures:
-          - php: hhvm
+        php: [8.2, 8.1, 8.0]
 
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +27,6 @@ jobs:
 
       - name: Before Script
         run: |
-          if [ ${{ matrix.php }} = '7.0' ]; then PHPUNIT_FLAGS="--coverage-clover ./build/logs/clover.xml"; fi
           php util/RestSpecRunner.php
           php util/EnsureClusterAlive.php
         env:
@@ -49,10 +35,6 @@ jobs:
 
       - name: Run tests
         run: vendor/bin/phpunit $PHPUNIT_FLAGS
-
-      - name: After Script
-        if: matrix.php == '7.0'
-        run: php vendor/bin/coveralls
 
     env:
       ES_VERSION: "2.4"
