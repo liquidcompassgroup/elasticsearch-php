@@ -1,0 +1,60 @@
+name: PHP CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php: [8.2, 8.1, 8.0, 7.3]
+        include:
+          - php: 5.6
+            env:
+              ES_VERSION: "2.4"
+              TEST_BUILD_REF: "origin/2.4"
+          - php: 5.6
+            env:
+              ES_VERSION: "1.7"
+              TEST_BUILD_REF: "origin/1.7"
+        exclude:
+          - php: hhvm
+        allow_failures:
+          - php: hhvm
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Before Install
+        run: ./travis/download_and_run_es.sh
+
+      - name: Install dependencies
+        run: composer install --prefer-dist
+
+      - name: Before Script
+        run: |
+          if [ ${{ matrix.php }} = '7.0' ]; then PHPUNIT_FLAGS="--coverage-clover ./build/logs/clover.xml"; fi
+          php util/RestSpecRunner.php
+          php util/EnsureClusterAlive.php
+        env:
+          ES_VERSION: ${{ matrix.env.ES_VERSION }}
+          TEST_BUILD_REF: ${{ matrix.env.TEST_BUILD_REF }}
+
+      - name: Run tests
+        run: vendor/bin/phpunit $PHPUNIT_FLAGS
+
+      - name: After Script
+        if: matrix.php == '7.0'
+        run: php vendor/bin/coveralls
+
+    env:
+      ES_VERSION: "2.4"
+      TEST_BUILD_REF: "origin/2.3"
+      ES_TEST_HOST: http://localhost:9200
