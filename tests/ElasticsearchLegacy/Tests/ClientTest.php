@@ -4,6 +4,10 @@ namespace ElasticsearchLegacy\Tests;
 
 use Elasticsearch;
 use ElasticsearchLegacy\ClientBuilder;
+use ElasticsearchLegacy\Common\Exceptions\Curl\CouldNotConnectToHost;
+use ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException;
+use ElasticsearchLegacy\Common\Exceptions\RuntimeException;
+use ElasticsearchLegacy\Common\Exceptions\TransportException;
 use ElasticsearchLegacy\Connections\Connection;
 use Mockery as m;
 
@@ -17,9 +21,9 @@ use Mockery as m;
  * @license    http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link       http://elasticsearch.org
  */
-class ClientTest extends \PHPUnit_Framework_TestCase
+class ClientTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
@@ -29,14 +33,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructorIllegalPort()
     {
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts(['localhost:abc'])->build();
+        $this->expectException(\ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException::class);
+        $client = ClientBuilder::create()->setHosts(['localhost:abc'])->build();
     }
 
     public function testCustomQueryParams()
     {
         $params = array();
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([$_SERVER['ES_TEST_HOST']])->build();
+        $client = ClientBuilder::create()->setHosts(['localhost:9200'])->build();
 
         $getParams = array(
             'index' => 'test',
@@ -65,6 +70,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testFromConfigBadParam()
     {
+        $this->expectException(\ElasticsearchLegacy\Common\Exceptions\RuntimeException::class);
         $params = [
             'hosts' => [
                 'localhost:9200'
@@ -98,7 +104,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -109,7 +115,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -120,7 +126,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => null
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
     }
@@ -136,7 +142,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -147,7 +153,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -158,7 +164,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => ''
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
     }
@@ -174,7 +180,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -185,7 +191,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
     }
@@ -201,7 +207,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
 
@@ -212,14 +218,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
                 'id' => 'test'
             ]);
             $this->fail("InvalidArgumentException was not thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             // all good
         }
     }
 
     public function testMaxRetriesException()
     {
-        $client = ElasticsearchLegacy\ClientBuilder::create()
+        $client = ClientBuilder::create()
             ->setHosts(["localhost:1"])
             ->setRetries(0)
             ->build();
@@ -234,7 +240,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()
+        $client = ClientBuilder::create()
             ->setHosts(["localhost:1"])
             ->setRetries(0)
             ->build();
@@ -242,7 +248,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         try {
             $client->search($searchParams);
             $this->fail("Should have thrown CouldNotConnectToHost");
-        } catch (ElasticsearchLegacy\Common\Exceptions\Curl\CouldNotConnectToHost $e) {
+        } catch (CouldNotConnectToHost $e) {
             // All good
             $previous = $e->getPrevious();
             $this->assertInstanceOf('ElasticsearchLegacy\Common\Exceptions\MaxRetriesException', $previous);
@@ -251,7 +257,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         }
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()
+        $client = ClientBuilder::create()
             ->setHosts(["localhost:1"])
             ->setRetries(0)
             ->build();
@@ -259,7 +265,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         try {
             $client->search($searchParams);
             $this->fail("Should have thrown TransportException");
-        } catch (ElasticsearchLegacy\Common\Exceptions\TransportException $e) {
+        } catch (TransportException $e) {
             // All good
             $previous = $e->getPrevious();
             $this->assertInstanceOf('ElasticsearchLegacy\Common\Exceptions\MaxRetriesException', $previous);
@@ -270,7 +276,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testInlineHosts()
     {
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             'localhost:9200'
         ])->build();
 
@@ -283,7 +289,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("http", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             'http://localhost:9200'
         ])->build();
         /** @var Connection $host */
@@ -291,7 +297,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("localhost:9200", $host->getHost());
         $this->assertEquals("http", $host->getTransportSchema());
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             'http://foo.com:9200'
         ])->build();
         /** @var Connection $host */
@@ -299,7 +305,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("foo.com:9200", $host->getHost());
         $this->assertEquals("http", $host->getTransportSchema());
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             'https://foo.com:9200'
         ])->build();
         /** @var Connection $host */
@@ -311,7 +317,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         // Note: we can't test user/pass themselves yet, need to introduce
         // breaking change to interface in master to do that
         // But we can confirm it doesn't break anything
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             'https://user:pass@foo.com:9200'
         ])->build();
         /** @var Connection $host */
@@ -322,7 +328,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
     public function testExtendedHosts()
     {
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'localhost',
                 'port' => 9200,
@@ -335,7 +341,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("http", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com',
                 'port' => 9200,
@@ -348,7 +354,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("http", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com',
                 'port' => 9200,
@@ -361,7 +367,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("https", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com',
                 'scheme' => 'http'
@@ -373,7 +379,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("http", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com'
             ]
@@ -384,7 +390,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("http", $host->getTransportSchema());
 
 
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com',
                 'port' => 9500,
@@ -398,19 +404,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
 
         try {
-            $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+            $client = ClientBuilder::create()->setHosts([
                 [
                     'port' => 9200,
                     'scheme' => 'http'
                 ]
             ])->build();
             $this->fail("Expected RuntimeException from missing host, none thrown");
-        } catch (ElasticsearchLegacy\Common\Exceptions\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             // good
         }
 
         // Underscore host, questionably legal, but inline method would break
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'the_foo.com'
             ]
@@ -422,7 +428,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 
 
         // Special characters in user/pass, would break inline
-        $client = ElasticsearchLegacy\ClientBuilder::create()->setHosts([
+        $client = ClientBuilder::create()->setHosts([
             [
                 'host' => 'foo.com',
                 'user' => 'user',

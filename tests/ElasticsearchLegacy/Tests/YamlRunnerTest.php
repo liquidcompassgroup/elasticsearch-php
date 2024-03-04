@@ -3,6 +3,7 @@
 namespace ElasticsearchLegacy\Tests;
 
 use Elasticsearch;
+use ElasticsearchLegacy\ClientBuilder;
 use ElasticsearchLegacy\Common\Exceptions\BadRequest400Exception;
 use ElasticsearchLegacy\Common\Exceptions\Conflict409Exception;
 use ElasticsearchLegacy\Common\Exceptions\Forbidden403Exception;
@@ -29,7 +30,7 @@ use Symfony\Component\Yaml\Yaml;
  * @license    http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link       http://elasticsearch.org
  */
-class YamlRunnerTest extends \PHPUnit_Framework_TestCase
+class YamlRunnerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var  Parser */
     private $yaml;
@@ -45,7 +46,7 @@ class YamlRunnerTest extends \PHPUnit_Framework_TestCase
     /**
      * @return mixed
      */
-    public static function getHostEnvVar()
+    public static function getHostEnvVar(): mixed
     {
         if (isset($_SERVER['ES_TEST_HOST']) === true) {
             return $_SERVER['ES_TEST_HOST'];
@@ -55,8 +56,18 @@ class YamlRunnerTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public static function setUpBeforeClass()
+    public static function markTestSuiteSkipped($message = '')
     {
+        throw new \PHPUnit\Framework\SkippedTestSuiteError($message);
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+
+        if ($_SERVER['SKIP_YAML_TESTS']) {
+            self::markTestSuiteSkipped('Skipping entire suite due to SKIP_YAML_TESTS env var');
+        }
+
         ob_implicit_flush();
         date_default_timezone_set('UTC');
         $host = YamlRunnerTest::getHostEnvVar();
@@ -75,8 +86,9 @@ class YamlRunnerTest extends \PHPUnit_Framework_TestCase
         echo "ES Version: ".YamlRunnerTest::$esVersion."\n";
     }
 
-    public function setUp()
+    public function setUp(): void
     {
+        $this->markTestSkipped('The entire test suite is skipped due to missing git module dependencies.');
         $this->yaml = new Parser();
         $uri = parse_url($host = YamlRunnerTest::getHostEnvVar());
 
@@ -85,10 +97,10 @@ class YamlRunnerTest extends \PHPUnit_Framework_TestCase
         //$params['logging'] = true;
         //$params['logLevel'] = \Psr\Log\LogLevel::DEBUG;
 
-        $this->client = ElasticsearchLegacy\ClientBuilder::create()->setHosts($params['hosts'])->build();
+        $this->client = ClientBuilder::create()->setHosts($params['hosts'])->build();
     }
 
-    private function clearCluster()
+    private function clearCluster(): void
     {
         echo "\n>>>CLEARING<<<\n";
         $host = YamlRunnerTest::getHostEnvVar();

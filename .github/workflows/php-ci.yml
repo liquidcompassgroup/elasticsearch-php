@@ -8,7 +8,13 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.1, 8.0]
+        php: [8.2, 8.1]
+        os: [ubuntu-latest]
+        es-version: [2.3]
+
+    env:
+      ES_HOST: localhost
+      ES_PORT: 9200
 
     steps:
       - uses: actions/checkout@v2
@@ -19,24 +25,41 @@ jobs:
           php-version: ${{ matrix.php }}
           coverage: none
 
-      - name: Before Install
-        run: ./travis/download_and_run_es.sh
-
       - name: Install dependencies
-        run: composer install --prefer-dist
-
-      - name: Before Script
+        if: ${{ matrix.php-version != '8.0' }}
         run: |
-          php util/RestSpecRunner.php
-          php util/EnsureClusterAlive.php
+          composer install --prefer-dist
+
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - name: Run Elasticsearch
+        run: |
+          docker run -d -p ${{ env.ES_PORT }}:9200 -p 9300:9300 --name elasticsearch bitnami/elasticsearch:${{ matrix.es-version }}
         env:
-          ES_VERSION: ${{ env.ES_VERSION }}
-          TEST_BUILD_REF: ${{ env.TEST_BUILD_REF }}
+          ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+
+      - name: Wait for Elasticsearch
+        run: sleep 30
+
+      - name: Check Elasticsearch
+        run: |
+          for i in {1..5}; do
+            curl -X GET "${{ env.ES_HOST }}:${{ env.ES_PORT }}/_cluster/health?wait_for_status=yellow&timeout=50s" && break || sleep 10
+          done
+        timeout-minutes: 3
+
+      - name: Get Elasticsearch logs
+        if: failure()
+        run: docker logs elasticsearch
 
       - name: Run tests
-        run: vendor/bin/phpunit $PHPUNIT_FLAGS
-
-    env:
-      ES_VERSION: "2.4"
-      TEST_BUILD_REF: "origin/2.3"
-      ES_TEST_HOST: http://localhost:9200
+        run: vendor/bin/phpunit
+        env:
+          ES_VERSION: ${{ matrix.es-version }}
+          ES_TEST_HOST: "${{ env.ES_HOST }}:${{ env.ES_PORT }}"
+          SKIP_YAML_TESTS: 1

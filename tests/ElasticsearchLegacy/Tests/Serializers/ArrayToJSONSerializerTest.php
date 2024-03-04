@@ -3,16 +3,15 @@
 namespace ElasticsearchLegacy\Tests\Serializers;
 
 use ElasticsearchLegacy\Serializers\ArrayToJSONSerializer;
-use PHPUnit_Framework_TestCase;
 use Mockery as m;
 
 /**
  * Class ArrayToJSONSerializerTest
  * @package ElasticsearchLegacy\Tests\Serializers
  */
-class ArrayToJSONSerializerTest extends PHPUnit_Framework_TestCase
+class ArrayToJSONSerializerTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
