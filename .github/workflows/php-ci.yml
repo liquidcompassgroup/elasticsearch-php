@@ -30,8 +30,8 @@ jobs:
           php util/RestSpecRunner.php
           php util/EnsureClusterAlive.php
         env:
-          ES_VERSION: ${{ matrix.env.ES_VERSION }}
-          TEST_BUILD_REF: ${{ matrix.env.TEST_BUILD_REF }}
+          ES_VERSION: ${{ env.ES_VERSION }}
+          TEST_BUILD_REF: ${{ env.TEST_BUILD_REF }}
 
       - name: Run tests
         run: vendor/bin/phpunit $PHPUNIT_FLAGS
