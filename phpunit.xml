@@ -1,12 +1,14 @@
-<phpunit
-        bootstrap="tests/bootstrap.php"
-        colors="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        convertErrorsToExceptions="true"
-        syntaxCheck="true"
-        verbose="true"
->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         verbose="true"
+         stderr="false"
+        >
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
     <php>
         <server name="ES_TEST_HOST" value="http://localhost:9200"/>
     </php>
@@ -15,9 +17,4 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
 </phpunit>

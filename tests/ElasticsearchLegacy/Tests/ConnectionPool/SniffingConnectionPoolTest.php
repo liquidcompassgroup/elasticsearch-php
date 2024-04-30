@@ -14,9 +14,9 @@ use Mockery as m;
  * @license    http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link       http://elasticsearch.org
  */
-class SniffingConnectionPoolTest extends \PHPUnit_Framework_TestCase
+class SniffingConnectionPoolTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
@@ -189,6 +189,7 @@ class SniffingConnectionPoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddTenNodesAllTimeout()
     {
+        $this->expectException(NoNodesAvailableException::class);
         $connections = array();
 
         foreach (range(1, 10) as $index) {
@@ -266,6 +267,7 @@ class SniffingConnectionPoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddSeed_SniffTwo_TimeoutTwo()
     {
+        $this->expectException(NoNodesAvailableException::class);
         $clusterState = json_decode('{"ok":true,"cluster_name":"elasticsearch_zach","nodes":{"node1":{"name":"Vesta","transport_address":"inet[/192.168.1.119:9300]","hostname":"zach-ThinkPad-W530","version":"0.90.5","http_address":"inet[/192.168.1.119:9200]"}, "node2":{"name":"Vesta","transport_address":"inet[/192.168.1.119:9301]","hostname":"zach-ThinkPad-W530","version":"0.90.5","http_address":"inet[/192.168.1.119:9201]"}}}', true);
 
         $mockConnection = m::mock('\ElasticsearchLegacy\Connections\Connection')
@@ -367,6 +369,7 @@ class SniffingConnectionPoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testTen_TimeoutNine_SniffTenth_AddTwoDead_TimeoutEveryone()
     {
+        $this->expectException(NoNodesAvailableException::class);
         $clusterState = json_decode('{"ok":true,"cluster_name":"elasticsearch_zach","nodes":{"node1":{"name":"Vesta","transport_address":"inet[/192.168.1.119:9300]","hostname":"zach-ThinkPad-W530","version":"0.90.5","http_address":"inet[/192.168.1.119:9200]"}, "node2":{"name":"Vesta","transport_address":"inet[/192.168.1.119:9301]","hostname":"zach-ThinkPad-W530","version":"0.90.5","http_address":"inet[/192.168.1.119:9201]"}}}', true);
 
         $connections = array();

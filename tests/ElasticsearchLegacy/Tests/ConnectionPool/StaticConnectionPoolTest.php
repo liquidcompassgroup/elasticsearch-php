@@ -4,6 +4,7 @@ namespace ElasticsearchLegacy\Tests\ConnectionPool;
 
 use Elasticsearch;
 use ElasticsearchLegacy\Common\Exceptions\NoNodesAvailableException;
+use ElasticsearchLegacy\ConnectionPool\StaticConnectionPool;
 use Mockery as m;
 
 /**
@@ -16,9 +17,9 @@ use Mockery as m;
  * @license    http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link       http://elasticsearch.org
  */
-class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
+class StaticConnectionPoolTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
@@ -44,7 +45,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = m::mock('\ElasticsearchLegacy\Connections\ConnectionFactory');
 
         $randomizeHosts = false;
-        $connectionPool = new ElasticsearchLegacy\ConnectionPool\StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
+        $connectionPool = new StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
 
         $retConnection = $connectionPool->nextConnection();
 
@@ -76,7 +77,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = m::mock('\ElasticsearchLegacy\Connections\ConnectionFactory');
 
         $randomizeHosts = false;
-        $connectionPool = new ElasticsearchLegacy\ConnectionPool\StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
+        $connectionPool = new StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
 
         $retConnection = $connectionPool->nextConnection();
 
@@ -88,6 +89,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllHostsFailPing()
     {
+        $this->expectException(NoNodesAvailableException::class);
         $connections = array();
 
         foreach (range(1, 10) as $index) {
@@ -113,7 +115,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = m::mock('\ElasticsearchLegacy\Connections\ConnectionFactory');
 
         $randomizeHosts = false;
-        $connectionPool = new ElasticsearchLegacy\ConnectionPool\StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
+        $connectionPool = new StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
 
         $connectionPool->nextConnection();
     }
@@ -158,7 +160,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = m::mock('\ElasticsearchLegacy\Connections\ConnectionFactory');
 
         $randomizeHosts = false;
-        $connectionPool = new ElasticsearchLegacy\ConnectionPool\StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
+        $connectionPool = new StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
 
         $ret = $connectionPool->nextConnection();
         $this->assertEquals($goodConnection, $ret);
@@ -204,7 +206,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         $connectionFactory = m::mock('\ElasticsearchLegacy\Connections\ConnectionFactory');
 
         $randomizeHosts = false;
-        $connectionPool = new ElasticsearchLegacy\ConnectionPool\StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
+        $connectionPool = new StaticConnectionPool($connections, $selector, $connectionFactory, $randomizeHosts);
 
         $ret = $connectionPool->nextConnection();
         $this->assertEquals($goodConnection, $ret);
@@ -221,7 +223,7 @@ class StaticConnectionPoolTest extends \PHPUnit_Framework_TestCase
         try {
             $client->search([]);
             $this->fail("Should have thrown NoNodesAvailableException");
-        } catch (ElasticsearchLegacy\Common\Exceptions\NoNodesAvailableException $e) {
+        } catch (NoNodesAvailableException $e) {
             // All good
         } catch (\Exception $e) {
             throw $e;

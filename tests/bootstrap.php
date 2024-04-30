@@ -1,6 +1,12 @@
 <?php
 
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL ^ E_DEPRECATED);
+
+set_error_handler(function ($errno, $errstr) {
+    if (error_reporting() & $errno) {
+        throw new ErrorException($errstr, 0, $errno);
+    }
+});
 
 // Set the default timezone. While this doesn't cause any tests to fail, PHP
 // complains if it is not set in 'date.timezone' of php.ini.

@@ -3,6 +3,7 @@
 namespace ElasticsearchLegacy\Tests\ConnectionPool\Selectors;
 
 use Elasticsearch;
+use ElasticsearchLegacy\ConnectionPool\Selectors\StickyRoundRobinSelector;
 use Mockery as m;
 
 /**
@@ -15,16 +16,16 @@ use Mockery as m;
  * @license    http://www.apache.org/licenses/LICENSE-2.0 Apache2
  * @link       http://elasticsearch.org
  */
-class StickyRoundRobinSelectorTest extends \PHPUnit_Framework_TestCase
+class StickyRoundRobinSelectorTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
 
     public function testTenConnections()
     {
-        $roundRobin = new ElasticsearchLegacy\ConnectionPool\Selectors\StickyRoundRobinSelector();
+        $roundRobin = new StickyRoundRobinSelector();
 
         $mockConnections = array();
         $mockConnections[] = m::mock('\ElasticsearchLegacy\Connections\GuzzleConnection')
@@ -43,7 +44,7 @@ class StickyRoundRobinSelectorTest extends \PHPUnit_Framework_TestCase
 
     public function testTenConnectionsFirstDies()
     {
-        $roundRobin = new ElasticsearchLegacy\ConnectionPool\Selectors\StickyRoundRobinSelector();
+        $roundRobin = new StickyRoundRobinSelector();
 
         $mockConnections = array();
         $mockConnections[] = m::mock('\ElasticsearchLegacy\Connections\GuzzleConnection')
